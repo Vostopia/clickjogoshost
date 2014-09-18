@@ -1,0 +1,66 @@
+{% load staticfiles %}
+{% load cdn %}
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>Vostopia Avatars</title>
+
+        {% if google_analytics_property %}
+        <!-- Google Analytics -->
+        <script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', '{{  google_analytics_property }}', {
+            siteSpeedSampleRate: 100
+        });
+        ga('send', 'pageview', '/not-logged-in');
+        </script>
+        <!-- End Google Analytics -->
+        {% endif %}
+
+		<script type='text/javascript' src='{{ "webplayer/jquery.min.js"|cdn_static }}'></script>
+        <script>
+            function authenticate()
+            {
+                window.open('{{ clickjogos_auth_url }}', 'clickjogos-auth', 'toolbar=no, width=665, height=710');
+            }
+        </script>
+
+		<style type="text/css">
+		<!--
+		body {
+			font-family: Helvetica, Verdana, Arial, sans-serif;
+			background-color: white;
+			color: black;
+            margin: 0;
+            padding: 0;
+		}
+		a:link, a:visited {
+			color: #000;
+		}
+		a:active, a:hover {
+			color: #666;
+		}
+		div.content {
+			margin: auto;
+			width: {{ webplayer.width }}px;
+		}
+		-->
+		</style>
+	</head>
+	<body>
+		<div class="content">
+            <a href="javascript:authenticate()">
+                {% if webplayer.notloggedin_image %}
+                <img src="{{ webplayer.notloggedin_image|cdn }}" width="{{ webplayer.width }}" height="{{ webplayer.height }}" />
+                {% else %}
+                    Log in with clickjogos
+                {% endif %}
+            </a>
+		</div>
+	</body>
+</html>

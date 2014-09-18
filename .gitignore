@@ -1,0 +1,6 @@
+.idea
+*.swp
+*.pyc
+
+/static/
+/media/

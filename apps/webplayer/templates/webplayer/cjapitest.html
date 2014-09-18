@@ -1,0 +1,55 @@
+{% load staticfiles %}
+{% load cdn %}
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>Vostopia Avatars</title>
+
+		<script type='text/javascript' src='{{ "webplayer/jquery.min.js"|cdn_static }}'></script>
+		<script type='text/javascript' src='{{ "webplayer/UnityObject2.js"|cdn_static }}'></script>
+        <script type='text/javascript' src='{{ "webplayer/cjapi.js"|cdn_static }}'></script>
+        <script type='text/javascript' src='{{ "webplayer/md5.js"|cdn_static }}'></script>
+        <script type='text/javascript' src='{{ "webplayer/base64.js"|cdn_static }}'></script>
+	</head>
+	<body>
+        <script type="application/javascript">
+            var devKey = "4b3b5e5f6c088b7cee02533de04436f9";
+            var gameKey = "1b95f89d14c89fc55c4c0251d31bc93c";
+
+            function create_salt()
+            {
+                var time = new Date();
+                var salt = base64.encode(devKey + '/' + gameKey + '/' + time + '/' + hex_md5(time + '/' + devKey))
+                console.log("Created salt: " + salt);
+                return salt;
+            }
+
+            function get_username()
+            {
+                //response for error
+                $(CJApi.users).bind('onGetUsernameError', function(event, result){
+                    console.log("onGetUsernameError");
+                    console.log(result);
+                })
+
+                //response for success
+                $(CJApi.users).bind('onGetUsername', function(event, result){
+                    console.log("onGetUsername");
+                    console.log(result);
+                })
+
+                /***CJApi.users***/
+                //request
+                CJApi.users.getUsername(create_salt());
+            }
+
+            get_username()
+
+        </script>
+
+        <div id="game_src"></div>
+
+        <a href="javascript:get_username()">get username</a>
+	</body>
+</html>

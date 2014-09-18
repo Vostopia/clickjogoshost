@@ -1,0 +1,160 @@
+{% load staticfiles %}
+{% load cdn %}
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>Vostopia Avatars</title>
+
+        {% if google_analytics_property %}
+        <!-- Google Analytics -->
+        <script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', '{{  google_analytics_property }}', {
+            siteSpeedSampleRate: 100
+        });
+        ga('require', 'ecommerce', 'ecommerce.js');
+        ga('send', 'pageview', '/logged-in/{{ webplayer.name }}');
+        </script>
+        <!-- End Google Analytics -->
+        {% endif %}
+
+		<script type='text/javascript' src='{{ "webplayer/jquery.min.js"|cdn_static }}'></script>
+		<script type='text/javascript' src='{{ "webplayer/UnityObject2.js"|cdn_static }}'></script>
+        <script type='text/javascript' src='{{ "webplayer/cjapi.js"|cdn_static }}'></script>
+		<script type="text/javascript">
+		<!--
+			var config = {
+				width: {{ webplayer.width }},
+				height: {{ webplayer.height }},
+				params: {
+                    {% if webplayer.logo_image %} logoimage: "{{ webplayer.logo_image|cdn }}", {% endif %}
+                    {% if webplayer.progressbarimage %} progressbarimage: "{{ webplayer.progressbar_image|cdn }}", {% endif %}
+                    {% if webplayer.progressframeimage %} progressframeimage: "{{ webplayer.progressframe_image|cdn }}", {% endif %}
+                    backgroundcolor: "{{ webplayer.backgroundcolor }}",
+                    bordercolor: "{{ webplayer.bordercolor }}",
+                    textcolor: "{{ webplayer.textcolor }}",
+                    enableDebugging:"0"
+                }
+			};
+			var u = new UnityObject2(config);
+
+			jQuery(function() {
+
+				var $missingScreen = jQuery("#unityPlayer").find(".missing");
+				var $brokenScreen = jQuery("#unityPlayer").find(".broken");
+				$missingScreen.hide();
+				$brokenScreen.hide();
+				
+				u.observeProgress(function (progress) {
+					switch(progress.pluginStatus) {
+						case "broken":
+							$brokenScreen.find("a").click(function (e) {
+								e.stopPropagation();
+								e.preventDefault();
+								u.installPlugin();
+								return false;
+							});
+							$brokenScreen.show();
+						break;
+						case "missing":
+							$missingScreen.find("a").click(function (e) {
+								e.stopPropagation();
+								e.preventDefault();
+								u.installPlugin();
+								return false;
+							});
+							$missingScreen.show();
+						break;
+						case "installed":
+							$missingScreen.remove();
+						break;
+						case "first":
+						break;
+					}
+				});
+				u.initPlugin(jQuery("#unityPlayer")[0], "{{ webplayer.file|cdn }}");
+			});
+
+            function GetVostopiaParameters(gameObject, method) {
+                var parameters = JSON.stringify({
+                    "auth": {
+                        "method": "clickjogos",
+                        "access_token": "{{ user.create_jwt }}",
+                        "username": "{{ user.username }}"
+                    }
+                });
+                var uo = UnityObject2.instances[0].getUnity();
+                uo.SendMessage(gameObject, method, parameters);
+            }
+		-->
+		</script>
+		<style type="text/css">
+		<!--
+		body {
+			font-family: Helvetica, Verdana, Arial, sans-serif;
+			background-color: white;
+			color: black;
+            margin: 0;
+            padding: 0;
+		}
+		a:link, a:visited {
+			color: #000;
+		}
+		a:active, a:hover {
+			color: #666;
+		}
+		div.content {
+			margin: auto;
+			width: {{ webplayer.width }}px;
+		}
+		div.broken,
+		div.missing {
+			margin: auto;
+			position: relative;
+			top: 50%;
+			width: 193px;
+		}
+		div.broken a,
+		div.missing a {
+			height: 63px;
+			position: relative;
+			top: -31px;
+		}
+		div.broken img,
+		div.missing img {
+			border-width: 0;
+		}
+		div.broken {
+			display: none;
+		}
+		div#unityPlayer {
+			cursor: default;
+			height: {{ webplayer.width }}px;
+			width: {{ webplayer.height }}px;
+		}
+		-->
+		</style>
+	</head>
+	<body>
+		<div class="content">
+			<div id="unityPlayer">
+				<div class="missing">
+					<a href="http://unity3d.com/webplayer/" title="Unity Web Player. Install now!">
+						<img alt="Unity Web Player. Install now!" src="http://webplayer.unity3d.com/installation/getunity.png" width="193" height="63" />
+					</a>
+				</div>
+				<div class="broken">
+					<a href="http://unity3d.com/webplayer/" title="Unity Web Player. Install now! Restart your browser after install.">
+						<img alt="Unity Web Player. Install now! Restart your browser after install." src="http://webplayer.unity3d.com/installation/getunityrestart.png" width="193" height="63" />
+					</a>
+				</div>
+			</div>
+		</div>
+        <div id="game_src"></div> <!-- required to workaround cj api bug -->
+	</body>
+</html>
